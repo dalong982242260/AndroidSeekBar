@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
         mRangeSeekBar4 = findViewById(R.id.range_seek_bar4);
         mRangeSeekBarTv4 = findViewById(R.id.range_seek_bar_tv4);
         mRangeSeekBar.setRangeData(getSeekBarData())
+                .setMaxValue(140)
                 .setOnDragFinishedListener(new RangeSeekBarView.OnDragFinishedListener() {
                     @Override
                     public void dragFinished(int leftPostion, int rightPostion, float leftPosRatio, float rightPosRatio) {
@@ -44,8 +45,7 @@ public class MainActivity extends AppCompatActivity {
                 }).setOnLayoutLoadCompleteListener(new RangeSeekBarView.OnLayoutLoadCompleteListener() {
             @Override
             public void loadComplete() {
-                mRangeSeekBar.setLeftSeekBallPos(1);
-                mRangeSeekBar.setRightSeekBallPos(4);
+                mRangeSeekBar.setSeekBarPos(120);
             }
         });
         mRangeSeekBar2.setRangeData(getSeekBarData())
@@ -59,8 +59,8 @@ public class MainActivity extends AppCompatActivity {
                 }).setOnLayoutLoadCompleteListener(new RangeSeekBarView.OnLayoutLoadCompleteListener() {
             @Override
             public void loadComplete() {
-                mRangeSeekBar2.setLeftSeekBallPos(1);
-                mRangeSeekBar2.setRightSeekBallPos(4);
+                mRangeSeekBar2.setLeftSeekBallStepPos(1);
+                mRangeSeekBar2.setRightSeekBallStepPos(4);
             }
         });
         mRangeSeekBar3.setRangeData(getSeekBarData())
@@ -74,8 +74,8 @@ public class MainActivity extends AppCompatActivity {
                 }).setOnLayoutLoadCompleteListener(new RangeSeekBarView.OnLayoutLoadCompleteListener() {
             @Override
             public void loadComplete() {
-                mRangeSeekBar3.setLeftSeekBallPos(1);
-                mRangeSeekBar3.setRightSeekBallPos(4);
+                mRangeSeekBar3.setLeftSeekBallStepPos(1);
+                mRangeSeekBar3.setRightSeekBallStepPos(4);
             }
         });
         mRangeSeekBar4.setRangeData(getSeekBarData())
@@ -89,8 +89,8 @@ public class MainActivity extends AppCompatActivity {
                 }).setOnLayoutLoadCompleteListener(new RangeSeekBarView.OnLayoutLoadCompleteListener() {
             @Override
             public void loadComplete() {
-                mRangeSeekBar4.setLeftSeekBallPos(1);
-                mRangeSeekBar4.setRightSeekBallPos(4);
+                mRangeSeekBar4.setLeftSeekBallStepPos(1);
+                mRangeSeekBar4.setRightSeekBallStepPos(4);
             }
         });
 

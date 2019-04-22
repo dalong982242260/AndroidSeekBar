@@ -27,6 +27,7 @@ public class RangeSeekBarView extends View {
     private static final int SEEK_STROKE_SIZE = 2;
     private static final String TAG = RangeSeekBarView.class.getSimpleName();
 
+    //配置信息
     private int viewWidth;
     private int viewHeight;
     private int seekBgColor;
@@ -38,6 +39,7 @@ public class RangeSeekBarView extends View {
     private boolean isShowVerticalLine;
     private boolean isStepMove;
 
+    //所有画笔
     private Paint seekBgPaint;
     private Paint seekLinePaint;
     private Paint seekBallPaint;
@@ -48,6 +50,7 @@ public class RangeSeekBarView extends View {
     private RectF seekBGRectF;
     private RectF seekPbRectF;
 
+    //左右球的位置及大小信息
     private int seekBallRadio;
     private int seekBallY;
     private int leftSeekBallX;
@@ -62,13 +65,14 @@ public class RangeSeekBarView extends View {
     private int downX;
     private Context mContext;
     private boolean isFirst = true;
-
     //单选模式
     public final static int SEEKBAR_MODE_SINGLE = 1;
     //范围模式
     public final static int SEEKBAR_MODE_RANGE = 2;
     //模式 默认范围模式
     private int seekBarMode = SEEKBAR_MODE_RANGE;
+    //最大值
+    private int maxValue;
 
     public RangeSeekBarView(Context context) {
         this(context, null);
@@ -226,7 +230,7 @@ public class RangeSeekBarView extends View {
      *
      * @param pos
      */
-    public void setLeftSeekBallPos(int pos) {
+    public void setLeftSeekBallStepPos(int pos) {
         if (data == null) return;
         if (seekBarMode != SEEKBAR_MODE_RANGE) return;
         if (pos < 0) pos = 0;
@@ -245,7 +249,7 @@ public class RangeSeekBarView extends View {
      *
      * @param pos
      */
-    public void setRightSeekBallPos(int pos) {
+    public void setRightSeekBallStepPos(int pos) {
         if (data == null) return;
         if (pos < 0) pos = 0;
         if (pos > data.size() - 1) pos = data.size() - 1;
@@ -254,6 +258,23 @@ public class RangeSeekBarView extends View {
         //设置左面小球的位置
         rightSeekBallX = DEF_PADDING + seekBallRadio + unitWidth * pos;
         //设置背景线的样式
+        seekPbRectF = new RectF(leftSeekBallX, viewHeight * SEEK_BG_SCALE, rightSeekBallX, viewHeight * SEEK_BG_SCALE + BG_HEIGHT);
+        postInvalidate();
+    }
+
+
+    /**
+     * 单选模式设置有效
+     * 设置seekbar位置
+     *
+     * @param value
+     */
+    public void setSeekBarPos(int value) {
+        if (seekBarMode != SEEKBAR_MODE_SINGLE) return;
+        if (value < 0) value = 0;
+        if (value > maxValue) value = maxValue;
+        int totalLenght = viewWidth - 2 * DEF_PADDING - 2 * seekBallRadio;
+        rightSeekBallX = (int) (DEF_PADDING + seekBallRadio + (value * 1.0f / maxValue) * totalLenght);
         seekPbRectF = new RectF(leftSeekBallX, viewHeight * SEEK_BG_SCALE, rightSeekBallX, viewHeight * SEEK_BG_SCALE + BG_HEIGHT);
         postInvalidate();
     }
@@ -462,6 +483,17 @@ public class RangeSeekBarView extends View {
         if (null != data && data.size() != 0) {
             rightPosition = data.size() - 1;
         }
+        return this;
+    }
+
+    /**
+     * 设置最大值
+     *
+     * @param maxValue
+     * @return
+     */
+    public RangeSeekBarView setMaxValue(int maxValue) {
+        this.maxValue = maxValue;
         return this;
     }
 
