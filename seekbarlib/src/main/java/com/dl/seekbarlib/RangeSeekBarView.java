@@ -36,6 +36,7 @@ public class RangeSeekBarView extends View {
     private int seekTextColor;
     private int seekTextSize;
     private boolean isShowVerticalLine;
+    private boolean isStepMove;
 
     private Paint seekBgPaint;
     private Paint seekLinePaint;
@@ -61,6 +62,13 @@ public class RangeSeekBarView extends View {
     private int downX;
     private Context mContext;
     private boolean isFirst = true;
+
+    //单选模式
+    public final static int SEEKBAR_MODE_SINGLE = 1;
+    //范围模式
+    public final static int SEEKBAR_MODE_RANGE = 2;
+    //模式 默认范围模式
+    private int seekBarMode = SEEKBAR_MODE_RANGE;
 
     public RangeSeekBarView(Context context) {
         this(context, null);
@@ -97,6 +105,13 @@ public class RangeSeekBarView extends View {
 
             } else if (attr == R.styleable.RangeSeekBarView_seek_vertical_line) {
                 isShowVerticalLine = typedArray.getBoolean(attr, false);
+
+            } else if (attr == R.styleable.RangeSeekBarView_seek_step_move) {
+                isStepMove = typedArray.getBoolean(attr, false);
+
+            } else if (attr == R.styleable.RangeSeekBarView_seek_mode) {
+                seekBarMode = typedArray.getInt(attr, SEEKBAR_MODE_RANGE);
+
             }
         }
         typedArray.recycle();
@@ -138,7 +153,6 @@ public class RangeSeekBarView extends View {
         rightSeekBallX = viewWidth - seekBallRadio - DEF_PADDING;
 
         seekBGRectF = new RectF(seekBallRadio + DEF_PADDING, viewHeight * SEEK_BG_SCALE, viewWidth - seekBallRadio - DEF_PADDING, viewHeight * SEEK_BG_SCALE + BG_HEIGHT);
-//        seekBGRectF = new RectF(0 + DEF_PADDING, viewHeight * SEEK_BG_SCALE, viewWidth - 0 - DEF_PADDING, viewHeight * SEEK_BG_SCALE + BG_HEIGHT);
         seekPbRectF = new RectF(leftSeekBallX, viewHeight * SEEK_BG_SCALE, rightSeekBallX, viewHeight * SEEK_BG_SCALE + BG_HEIGHT);
 
     }
@@ -162,7 +176,9 @@ public class RangeSeekBarView extends View {
         drawVerticalLine(canvas);
         drawSeekBG(canvas);
         drawSeekPB(canvas);
-        drawLeftCircle(canvas);
+        if (seekBarMode == SEEKBAR_MODE_RANGE) {
+            drawLeftCircle(canvas);
+        }
         drawRightCircle(canvas);
     }
 
@@ -206,12 +222,13 @@ public class RangeSeekBarView extends View {
 
 
     /**
-     * 设置左面球的位置 -必须在view加载完成在设置有效
+     * 设置左面球的位置 -必须在view加载完成在设置有效   当是单选不是范围模式的时候设置无效
      *
      * @param pos
      */
     public void setLeftSeekBallPos(int pos) {
         if (data == null) return;
+        if (seekBarMode != SEEKBAR_MODE_RANGE) return;
         if (pos < 0) pos = 0;
         if (pos > data.size() - 1) pos = data.size() - 1;
         int size = data.size();
@@ -244,64 +261,89 @@ public class RangeSeekBarView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
+        if (getParent() != null) {
+            getParent().requestDisallowInterceptTouchEvent(true);
+        }
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 downX = (int) event.getX();
-                // 根据当前坐标,确定要移动哪个球,因为我们这个是有两个球的,唯一的一个技巧点就是这个地方,
-                // 根据手指按下的坐标找到距离哪个球位置最近就移动哪个球,这里注意下.
-                currentMovingType = getMovingLeftOrRight(downX);
-                if (BallType.LEFT == currentMovingType) {
-                    leftSeekBallX = downX;
-                } else if (BallType.RIGHT == currentMovingType) {
+                if (seekBarMode == SEEKBAR_MODE_RANGE) {//范围模式
+                    // 根据当前坐标,确定要移动哪个球,因为我们这个是有两个球的,唯一的一个技巧点就是这个地方,
+                    // 根据手指按下的坐标找到距离哪个球位置最近就移动哪个球,这里注意下.
+                    currentMovingType = getMovingLeftOrRight(downX);
+                    if (BallType.LEFT == currentMovingType) {
+                        leftSeekBallX = downX;
+                    } else if (BallType.RIGHT == currentMovingType) {
+                        rightSeekBallX = downX;
+                    }
+                } else {//单选模式
                     rightSeekBallX = downX;
                 }
                 seekPbRectF = new RectF(leftSeekBallX, viewHeight * SEEK_BG_SCALE, rightSeekBallX, viewHeight * SEEK_BG_SCALE + BG_HEIGHT);
-
                 break;
             case MotionEvent.ACTION_MOVE:
                 //移动的时候根据计算出来的位置以及方向改变两个小球的位置以及举行进度条的RectF的范围
                 int moveX = (int) event.getX();
-                // 特殊情况处理,两个球重合应该怎么办,
-                if (leftSeekBallX == rightSeekBallX) {
-                    if (moveX - downX > 0) {//向右滑动
-                        currentMovingType = BallType.RIGHT;
-                        downX = leftSeekBallX;
-                        rightSeekBallX = moveX;
-                    } else {// 向左滑动
-                        currentMovingType = BallType.LEFT;
-                        downX = rightSeekBallX;
-                        leftSeekBallX = moveX;
+                if (seekBarMode == SEEKBAR_MODE_RANGE) {//范围模式
+                    // 特殊情况处理,两个球重合应该怎么办,
+                    if (leftSeekBallX == rightSeekBallX) {
+                        if (moveX - downX > 0) {//向右滑动
+                            currentMovingType = BallType.RIGHT;
+                            downX = leftSeekBallX;
+                            rightSeekBallX = moveX;
+                        } else {// 向左滑动
+                            currentMovingType = BallType.LEFT;
+                            downX = rightSeekBallX;
+                            leftSeekBallX = moveX;
+                        }
+                    } else {
+                        if (BallType.LEFT == currentMovingType) {
+                            leftSeekBallX = leftSeekBallX - rightSeekBallX >= 0 ? rightSeekBallX : moveX;
+                        } else if (BallType.RIGHT == currentMovingType) {
+                            rightSeekBallX = rightSeekBallX - leftSeekBallX <= 0 ? leftSeekBallX : moveX;
+                        }
                     }
                 } else {
-                    if (BallType.LEFT == currentMovingType) {
-                        leftSeekBallX = leftSeekBallX - rightSeekBallX >= 0 ? rightSeekBallX : moveX;
-                    } else if (BallType.RIGHT == currentMovingType) {
-                        rightSeekBallX = rightSeekBallX - leftSeekBallX <= 0 ? leftSeekBallX : moveX;
-                    }
+                    rightSeekBallX = moveX;
                 }
                 seekPbRectF = new RectF(leftSeekBallX, viewHeight * SEEK_BG_SCALE, rightSeekBallX, viewHeight * SEEK_BG_SCALE + BG_HEIGHT);
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 //手指离开的时候,确定返回给UI的数据集 回弹到制定分割位置
-                if (BallType.LEFT == currentMovingType) {
-                    leftSeekBallX = leftSeekBallX - rightSeekBallX >= 0 ? rightSeekBallX : getCurrentSeekX((int) event.getX()) + DEF_PADDING + seekBallRadio;
-                } else if (BallType.RIGHT == currentMovingType) {
-                    rightSeekBallX = rightSeekBallX - leftSeekBallX <= 0 ? leftSeekBallX : getCurrentSeekX((int) event.getX()) + DEF_PADDING + seekBallRadio;
+                if (isStepMove) {//是否按步移动
+                    if (seekBarMode == SEEKBAR_MODE_RANGE) {//范围模式
+                        if (BallType.LEFT == currentMovingType) {
+                            leftSeekBallX = leftSeekBallX - rightSeekBallX >= 0 ? rightSeekBallX : getCurrentSeekX((int) event.getX()) + DEF_PADDING + seekBallRadio;
+                        } else if (BallType.RIGHT == currentMovingType) {
+                            rightSeekBallX = rightSeekBallX - leftSeekBallX <= 0 ? leftSeekBallX : getCurrentSeekX((int) event.getX()) + DEF_PADDING + seekBallRadio;
+                        }
+                    } else {
+                        rightSeekBallX = getCurrentSeekX((int) event.getX()) + DEF_PADDING + seekBallRadio;
+                    }
                 }
                 break;
         }
 
-        // 边界处理,确保左边的球不会超过右边的,右边的不会超过左边的
-        if (BallType.LEFT == currentMovingType) {
-            if (leftSeekBallX < seekBallRadio + DEF_PADDING) {
-                leftSeekBallX = seekBallRadio + DEF_PADDING;
+        if (seekBarMode == SEEKBAR_MODE_RANGE) {//范围模式
+            // 边界处理,确保左边的球不会超过右边的,右边的不会超过左边的
+            if (BallType.LEFT == currentMovingType) {
+                if (leftSeekBallX < seekBallRadio + DEF_PADDING) {
+                    leftSeekBallX = seekBallRadio + DEF_PADDING;
+                }
+                if (leftSeekBallX > viewWidth - seekBallRadio - DEF_PADDING) {
+                    leftSeekBallX = viewWidth - seekBallRadio - DEF_PADDING;
+                }
+            } else if (BallType.RIGHT == currentMovingType) {
+                if (rightSeekBallX < seekBallRadio + DEF_PADDING) {
+                    rightSeekBallX = seekBallRadio + DEF_PADDING;
+                }
+                if (rightSeekBallX > viewWidth - seekBallRadio - DEF_PADDING) {
+                    rightSeekBallX = viewWidth - seekBallRadio - DEF_PADDING;
+                }
             }
-            if (leftSeekBallX > viewWidth - seekBallRadio - DEF_PADDING) {
-                leftSeekBallX = viewWidth - seekBallRadio - DEF_PADDING;
-            }
-        } else if (BallType.RIGHT == currentMovingType) {
+        } else {
+            // 边界处理
             if (rightSeekBallX < seekBallRadio + DEF_PADDING) {
                 rightSeekBallX = seekBallRadio + DEF_PADDING;
             }
@@ -309,13 +351,18 @@ public class RangeSeekBarView extends View {
                 rightSeekBallX = viewWidth - seekBallRadio - DEF_PADDING;
             }
         }
+
         seekPbRectF = new RectF(leftSeekBallX, viewHeight * SEEK_BG_SCALE, rightSeekBallX, viewHeight * SEEK_BG_SCALE + BG_HEIGHT);
         //左边位置
         leftPosition = getDataPosition(leftSeekBallX);
         //右边位置
         rightPosition = getDataPosition(rightSeekBallX);
+
+        int totalLenght = viewWidth - 2 * DEF_PADDING - 2 * seekBallRadio;
+        float leftX = (leftSeekBallX - DEF_PADDING - seekBallRadio) * 1.0f / totalLenght;
+        float rightX = (rightSeekBallX - DEF_PADDING - seekBallRadio) * 1.0f / totalLenght;
         if (null != dragFinishedListener) {
-            dragFinishedListener.dragFinished(leftPosition, rightPosition);
+            dragFinishedListener.dragFinished(leftPosition, rightPosition, leftX, rightX);
         }
         postInvalidate();
         return true;
@@ -384,7 +431,7 @@ public class RangeSeekBarView extends View {
     }
 
     private int getUnitWidth(int count) {
-        return (viewWidth - 2 * DEF_PADDING - 2 * seekBallRadio) / count;
+        return Math.round((viewWidth - 2 * DEF_PADDING - 2 * seekBallRadio) * 1.0f / count);
     }
 
     private int getCurrentSeekX(int upX) {
@@ -461,7 +508,16 @@ public class RangeSeekBarView extends View {
      * 拖动接口
      */
     public interface OnDragFinishedListener {
-        void dragFinished(int leftPostion, int rightPostion);
+        /**
+         * 拖拽回调
+         *
+         * @param leftStepPos   range模式/步数移动下   左面的球步数index
+         * @param rightStepPos  range模式/步数移动下   右面的球步数index
+         * @param leftPosRatio  左面球滑动位置占总长度的比例  SEEKBAR_MODE_SINGLE模式下为0
+         * @param rightPosRatio 右面球滑动位置占总长度的比例
+         */
+        void dragFinished(int leftStepPos, int rightStepPos, float leftPosRatio, float rightPosRatio);
+
     }
 
     /**

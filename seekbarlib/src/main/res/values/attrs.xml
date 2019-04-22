@@ -8,6 +8,11 @@
         <attr name="seek_text_color" format="color" />
         <attr name="seek_text_size" format="dimension" />
         <attr name="seek_vertical_line" format="boolean" />
+        <attr name="seek_step_move" format="boolean" />
+        <attr name="seek_mode" format="enum">
+            <enum name="single" value="1" />
+            <enum name="range" value="2" />
+        </attr>
     </declare-styleable>
 
     <style name="RangeSeekBarViewStyle">
