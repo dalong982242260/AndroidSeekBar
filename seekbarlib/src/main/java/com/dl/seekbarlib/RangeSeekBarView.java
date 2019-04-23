@@ -72,7 +72,7 @@ public class RangeSeekBarView extends View {
     //模式 默认范围模式
     private int seekBarMode = SEEKBAR_MODE_RANGE;
     //最大值
-    private int maxValue;
+    private float maxValue;
 
     private float stepLenght = 1;
 
@@ -232,35 +232,34 @@ public class RangeSeekBarView extends View {
     /**
      * 设置左面球的位置 -必须在view加载完成在设置有效   当是单选不是范围模式的时候设置无效
      *
-     * @param pos
+     * @param value
      */
-    public void setLeftSeekBallStepPos(int pos) {
-//        if (data == null) return;
+    public void setLeftSeekBallValue(float value) {
         if (seekBarMode != SEEKBAR_MODE_RANGE) return;
-        if (pos < 0) pos = 0;
-        if (pos > data.size() - 1) pos = data.size() - 1;
-        int size = data.size();
-        int unitWidth = getUnitWidth(size - 1);
-        //设置左面小球的位置
-        leftSeekBallX = DEF_PADDING + seekBallRadio + unitWidth * pos;
+        if (value < 0) value = 0;
+        if (value > maxValue) value = maxValue;
+        // value占maxvlaue的百分比
+        float pos = 1.0f * value / stepLenght;
+        int totalLength = viewWidth - 2 * DEF_PADDING - 2 * seekBallRadio;
+        leftSeekBallX = ((int) (((Math.round(pos) * stepLenght) * 1.0f / maxValue) * totalLength) + DEF_PADDING + seekBallRadio);
         //设置背景线的样式
         seekPbRectF = new RectF(leftSeekBallX, viewHeight * SEEK_BG_SCALE, rightSeekBallX, viewHeight * SEEK_BG_SCALE + BG_HEIGHT);
-        invalidate();
+        postInvalidate();
     }
 
     /**
      * 设置右面球的位置-必须在view加载完成再设置有效
      *
-     * @param pos
+     * @param value
      */
-    public void setRightSeekBallStepPos(int pos) {
-//        if (data == null) return;
-        if (pos < 0) pos = 0;
-        if (pos > data.size() - 1) pos = data.size() - 1;
-        int size = data.size();
-        int unitWidth = getUnitWidth(size - 1);
-        //设置左面小球的位置
-        rightSeekBallX = DEF_PADDING + seekBallRadio + unitWidth * pos;
+    public void setRightSeekBallValue(float value) {
+        if (seekBarMode != SEEKBAR_MODE_RANGE) return;
+        if (value < 0) value = 0;
+        if (value > maxValue) value = maxValue;
+        // value占maxvlaue的百分比
+        float pos = 1.0f * value / stepLenght;
+        int totalLength = viewWidth - 2 * DEF_PADDING - 2 * seekBallRadio;
+        rightSeekBallX = ((int) (((Math.round(pos) * stepLenght) * 1.0f / maxValue) * totalLength) + DEF_PADDING + seekBallRadio);
         //设置背景线的样式
         seekPbRectF = new RectF(leftSeekBallX, viewHeight * SEEK_BG_SCALE, rightSeekBallX, viewHeight * SEEK_BG_SCALE + BG_HEIGHT);
         postInvalidate();
@@ -273,7 +272,7 @@ public class RangeSeekBarView extends View {
      *
      * @param value
      */
-    public void setSeekBarPos(int value) {
+    public void setSeekBarPos(float value) {
         if (seekBarMode != SEEKBAR_MODE_SINGLE) return;
         if (value < 0) value = 0;
         if (value > maxValue) value = maxValue;
@@ -358,6 +357,7 @@ public class RangeSeekBarView extends View {
                 break;
         }
 
+        //球的位置 边界处理
         if (seekBarMode == SEEKBAR_MODE_RANGE) {//范围模式
             // 边界处理,确保左边的球不会超过右边的,右边的不会超过左边的
             if (BallType.LEFT == currentMovingType) {
@@ -411,6 +411,14 @@ public class RangeSeekBarView extends View {
         }
         //手指x所在的步数
         float pos = 1.0f * maxValue * x / stepLenght;
+
+        //如果最大值和步数取余不是0  则要考虑最后一步的问题
+        if (maxValue % stepLenght != 0) {
+            //如果所在步数对上取整等于所有步数
+            if (Math.ceil(pos) == Math.floor(maxValue / stepLenght) + 1) {
+                return totalLength + DEF_PADDING + seekBallRadio;
+            }
+        }
         return ((int) (((Math.round(pos) * stepLenght) * 1.0f / maxValue) * totalLength) + DEF_PADDING + seekBallRadio);
     }
 
@@ -437,6 +445,13 @@ public class RangeSeekBarView extends View {
             index = 0;
         } else if (index > maxValue) {
             index = maxValue;
+        }
+        //如果最大值和步数取余不是0  则要考虑最后一步的问题
+        if (maxValue % stepLenght != 0) {
+            //如果所在步数对上取整等于所有步数
+            if (Math.ceil(pos) == Math.floor(maxValue / stepLenght) + 1) {
+                return maxValue;
+            }
         }
         return index;
     }
@@ -544,7 +559,7 @@ public class RangeSeekBarView extends View {
      * @param maxValue
      * @return
      */
-    public RangeSeekBarView setMaxValue(int maxValue) {
+    public RangeSeekBarView setMaxValue(float maxValue) {
         this.maxValue = maxValue;
         return this;
     }

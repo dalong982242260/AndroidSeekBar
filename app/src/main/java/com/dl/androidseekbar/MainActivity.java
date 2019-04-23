@@ -16,8 +16,9 @@ public class MainActivity extends AppCompatActivity {
     private RangeSeekBarView mRangeSeekBar;
     private TextView mRangeSeekBarTv;
 
-    private int maxValue = 11;
-    private float stepLenght = 2f;
+    private float maxValue = 91f;
+
+    private float stepLenght = 5f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
                 }).setOnLayoutLoadCompleteListener(new RangeSeekBarView.OnLayoutLoadCompleteListener() {
             @Override
             public void loadComplete() {
+                mRangeSeekBar.setLeftSeekBallValue(10);
+                mRangeSeekBar.setRightSeekBallValue(50);
             }
         });
 
@@ -48,9 +51,12 @@ public class MainActivity extends AppCompatActivity {
 
     public List<String> getSeekBarData() {
         List<String> data = new ArrayList<>();
-        for (float i = 0; i <= maxValue; i += stepLenght) {
-            data.add(String.valueOf(i));
-        }
+        data.add("0");
+        data.add("50");
+        data.add(""+maxValue);
+//        for (float i = 0; i <= maxValue; i += stepLenght) {
+//            data.add(String.valueOf(i));
+//        }
         return data;
     }
 }
