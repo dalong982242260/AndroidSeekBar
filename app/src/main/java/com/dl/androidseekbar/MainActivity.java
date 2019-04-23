@@ -16,8 +16,8 @@ public class MainActivity extends AppCompatActivity {
     private RangeSeekBarView mRangeSeekBar;
     private TextView mRangeSeekBarTv;
 
-    private int maxValue = 4;
-    private float stepLenght = 1f;
+    private int maxValue = 11;
+    private float stepLenght = 2f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
     public List<String> getSeekBarData() {
         List<String> data = new ArrayList<>();
-        for (int i = 0; i <= maxValue; i += stepLenght) {
+        for (float i = 0; i <= maxValue; i += stepLenght) {
             data.add(String.valueOf(i));
         }
         return data;

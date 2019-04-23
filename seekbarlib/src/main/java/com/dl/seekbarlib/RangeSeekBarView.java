@@ -292,6 +292,10 @@ public class RangeSeekBarView extends View {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 downX = (int) event.getX();
+                //重新计算x值
+                if (isStepMove) {
+                    downX = getCurrentX(downX);
+                }
                 if (seekBarMode == SEEKBAR_MODE_RANGE) {//范围模式
                     // 根据当前坐标,确定要移动哪个球,因为我们这个是有两个球的,唯一的一个技巧点就是这个地方,
                     // 根据手指按下的坐标找到距离哪个球位置最近就移动哪个球,这里注意下.
