@@ -13,6 +13,7 @@
             <enum name="single" value="1" />
             <enum name="range" value="2" />
         </attr>
+        <attr name="seek_step_length" format="float" />
     </declare-styleable>
 
     <style name="RangeSeekBarViewStyle">

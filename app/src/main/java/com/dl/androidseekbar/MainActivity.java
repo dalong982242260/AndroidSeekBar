@@ -2,6 +2,7 @@ package com.dl.androidseekbar;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.dl.seekbarlib.RangeSeekBarView;
@@ -13,13 +14,10 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private RangeSeekBarView mRangeSeekBar;
-    private RangeSeekBarView mRangeSeekBar2;
-    private RangeSeekBarView mRangeSeekBar3;
-    private RangeSeekBarView mRangeSeekBar4;
     private TextView mRangeSeekBarTv;
-    private TextView mRangeSeekBarTv2;
-    private TextView mRangeSeekBarTv3;
-    private TextView mRangeSeekBarTv4;
+
+    private int maxValue = 4;
+    private float stepLenght = 1f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,70 +25,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mRangeSeekBar = findViewById(R.id.range_seek_bar);
         mRangeSeekBarTv = findViewById(R.id.range_seek_bar_tv);
-        mRangeSeekBar2 = findViewById(R.id.range_seek_bar2);
-        mRangeSeekBarTv2 = findViewById(R.id.range_seek_bar_tv2);
-        mRangeSeekBar3 = findViewById(R.id.range_seek_bar3);
-        mRangeSeekBarTv3 = findViewById(R.id.range_seek_bar_tv3);
-        mRangeSeekBar4 = findViewById(R.id.range_seek_bar4);
-        mRangeSeekBarTv4 = findViewById(R.id.range_seek_bar_tv4);
-        mRangeSeekBar.setRangeData(getSeekBarData())
-                .setMaxValue(140)
+        mRangeSeekBar
+                .setRangeData(getSeekBarData())
+                .setMaxValue(maxValue)
+                .setStepLenght(stepLenght)
                 .setOnDragFinishedListener(new RangeSeekBarView.OnDragFinishedListener() {
                     @Override
-                    public void dragFinished(int leftPostion, int rightPostion, float leftPosRatio, float rightPosRatio) {
-//                        mRangeSeekBarTv.setText(getSeekBarData().get(leftPostion) + "~" + getSeekBarData().get(rightPostion));
-                        mRangeSeekBarTv.setText((int) Math.round(leftPosRatio * 140) + "~" + (int) Math.round(rightPosRatio * 140));
+                    public void dragFinished(float leftValue, float rightValue) {
+                        mRangeSeekBarTv.setText(leftValue + "~" + rightValue);
+                        Log.e("123123", "leftValue=" + leftValue + "  rightValue=" + rightValue);
                     }
 
                 }).setOnLayoutLoadCompleteListener(new RangeSeekBarView.OnLayoutLoadCompleteListener() {
             @Override
             public void loadComplete() {
-                mRangeSeekBar.setSeekBarPos(120);
-            }
-        });
-        mRangeSeekBar2.setRangeData(getSeekBarData())
-                .setOnDragFinishedListener(new RangeSeekBarView.OnDragFinishedListener() {
-                    @Override
-                    public void dragFinished(int leftPostion, int rightPostion, float leftPosRatio, float rightPosRatio) {
-//                        mRangeSeekBarTv.setText(getSeekBarData().get(leftPostion) + "~" + getSeekBarData().get(rightPostion));
-                        mRangeSeekBarTv2.setText((int) Math.round(leftPosRatio * 140) + "~" + (int) Math.round(rightPosRatio * 140));
-                    }
-
-                }).setOnLayoutLoadCompleteListener(new RangeSeekBarView.OnLayoutLoadCompleteListener() {
-            @Override
-            public void loadComplete() {
-                mRangeSeekBar2.setLeftSeekBallStepPos(1);
-                mRangeSeekBar2.setRightSeekBallStepPos(4);
-            }
-        });
-        mRangeSeekBar3.setRangeData(getSeekBarData())
-                .setOnDragFinishedListener(new RangeSeekBarView.OnDragFinishedListener() {
-                    @Override
-                    public void dragFinished(int leftPostion, int rightPostion, float leftPosRatio, float rightPosRatio) {
-//                        mRangeSeekBarTv.setText(getSeekBarData().get(leftPostion) + "~" + getSeekBarData().get(rightPostion));
-                        mRangeSeekBarTv3.setText((int) Math.round(leftPosRatio * 140) + "~" + (int) Math.round(rightPosRatio * 140));
-                    }
-
-                }).setOnLayoutLoadCompleteListener(new RangeSeekBarView.OnLayoutLoadCompleteListener() {
-            @Override
-            public void loadComplete() {
-                mRangeSeekBar3.setLeftSeekBallStepPos(1);
-                mRangeSeekBar3.setRightSeekBallStepPos(4);
-            }
-        });
-        mRangeSeekBar4.setRangeData(getSeekBarData())
-                .setOnDragFinishedListener(new RangeSeekBarView.OnDragFinishedListener() {
-                    @Override
-                    public void dragFinished(int leftPostion, int rightPostion, float leftPosRatio, float rightPosRatio) {
-//                        mRangeSeekBarTv.setText(getSeekBarData().get(leftPostion) + "~" + getSeekBarData().get(rightPostion));
-                        mRangeSeekBarTv4.setText((int) Math.round(leftPosRatio * 140) + "~" + (int) Math.round(rightPosRatio * 140));
-                    }
-
-                }).setOnLayoutLoadCompleteListener(new RangeSeekBarView.OnLayoutLoadCompleteListener() {
-            @Override
-            public void loadComplete() {
-                mRangeSeekBar4.setLeftSeekBallStepPos(1);
-                mRangeSeekBar4.setRightSeekBallStepPos(4);
             }
         });
 
@@ -100,14 +48,9 @@ public class MainActivity extends AppCompatActivity {
 
     public List<String> getSeekBarData() {
         List<String> data = new ArrayList<>();
-        data.add("0");
-        data.add("20");
-        data.add("40");
-        data.add("60");
-        data.add("80");
-        data.add("100");
-        data.add("120");
-        data.add("不限");
+        for (int i = 0; i <= maxValue; i += stepLenght) {
+            data.add(String.valueOf(i));
+        }
         return data;
     }
 }

@@ -74,6 +74,8 @@ public class RangeSeekBarView extends View {
     //最大值
     private int maxValue;
 
+    private float stepLenght = 1;
+
     public RangeSeekBarView(Context context) {
         this(context, null);
     }
@@ -116,6 +118,8 @@ public class RangeSeekBarView extends View {
             } else if (attr == R.styleable.RangeSeekBarView_seek_mode) {
                 seekBarMode = typedArray.getInt(attr, SEEKBAR_MODE_RANGE);
 
+            } else if (attr == R.styleable.RangeSeekBarView_seek_step_length) {
+                stepLenght = typedArray.getFloat(attr, 1.0f);
             }
         }
         typedArray.recycle();
@@ -231,7 +235,7 @@ public class RangeSeekBarView extends View {
      * @param pos
      */
     public void setLeftSeekBallStepPos(int pos) {
-        if (data == null) return;
+//        if (data == null) return;
         if (seekBarMode != SEEKBAR_MODE_RANGE) return;
         if (pos < 0) pos = 0;
         if (pos > data.size() - 1) pos = data.size() - 1;
@@ -250,7 +254,7 @@ public class RangeSeekBarView extends View {
      * @param pos
      */
     public void setRightSeekBallStepPos(int pos) {
-        if (data == null) return;
+//        if (data == null) return;
         if (pos < 0) pos = 0;
         if (pos > data.size() - 1) pos = data.size() - 1;
         int size = data.size();
@@ -305,6 +309,10 @@ public class RangeSeekBarView extends View {
             case MotionEvent.ACTION_MOVE:
                 //移动的时候根据计算出来的位置以及方向改变两个小球的位置以及举行进度条的RectF的范围
                 int moveX = (int) event.getX();
+                //重新计算x值
+                if (isStepMove) {
+                    moveX = getCurrentX(moveX);
+                }
                 if (seekBarMode == SEEKBAR_MODE_RANGE) {//范围模式
                     // 特殊情况处理,两个球重合应该怎么办,
                     if (leftSeekBallX == rightSeekBallX) {
@@ -332,15 +340,15 @@ public class RangeSeekBarView extends View {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 //手指离开的时候,确定返回给UI的数据集 回弹到制定分割位置
-                if (isStepMove) {//是否按步移动
+                if (!isStepMove) {//是否按步移动
                     if (seekBarMode == SEEKBAR_MODE_RANGE) {//范围模式
                         if (BallType.LEFT == currentMovingType) {
-                            leftSeekBallX = leftSeekBallX - rightSeekBallX >= 0 ? rightSeekBallX : getCurrentSeekX((int) event.getX()) + DEF_PADDING + seekBallRadio;
+                            leftSeekBallX = leftSeekBallX - rightSeekBallX >= 0 ? rightSeekBallX : getCurrentX((int) event.getX());
                         } else if (BallType.RIGHT == currentMovingType) {
-                            rightSeekBallX = rightSeekBallX - leftSeekBallX <= 0 ? leftSeekBallX : getCurrentSeekX((int) event.getX()) + DEF_PADDING + seekBallRadio;
+                            rightSeekBallX = rightSeekBallX - leftSeekBallX <= 0 ? leftSeekBallX : getCurrentX((int) event.getX());
                         }
                     } else {
-                        rightSeekBallX = getCurrentSeekX((int) event.getX()) + DEF_PADDING + seekBallRadio;
+                        rightSeekBallX = getCurrentX((int) event.getX());
                     }
                 }
                 break;
@@ -374,19 +382,59 @@ public class RangeSeekBarView extends View {
         }
 
         seekPbRectF = new RectF(leftSeekBallX, viewHeight * SEEK_BG_SCALE, rightSeekBallX, viewHeight * SEEK_BG_SCALE + BG_HEIGHT);
-        //左边位置
-        leftPosition = getDataPosition(leftSeekBallX);
-        //右边位置
-        rightPosition = getDataPosition(rightSeekBallX);
 
-        int totalLenght = viewWidth - 2 * DEF_PADDING - 2 * seekBallRadio;
-        float leftX = (leftSeekBallX - DEF_PADDING - seekBallRadio) * 1.0f / totalLenght;
-        float rightX = (rightSeekBallX - DEF_PADDING - seekBallRadio) * 1.0f / totalLenght;
         if (null != dragFinishedListener) {
-            dragFinishedListener.dragFinished(leftPosition, rightPosition, leftX, rightX);
+            dragFinishedListener.dragFinished(getCurrentValue(leftSeekBallX), getCurrentValue(rightSeekBallX));
         }
         postInvalidate();
         return true;
+    }
+
+    /**
+     * 设置当前值
+     *
+     * @param moveX
+     * @return
+     */
+    public int getCurrentX(int moveX) {
+        int totalLength = viewWidth - 2 * DEF_PADDING - 2 * seekBallRadio;
+        //当前手指x占总长的百分比
+        float x = 1.0f * (moveX - DEF_PADDING - seekBallRadio) / totalLength;
+        if (x < 0) {
+            x = 0;
+        } else if (x > 1) {
+            x = 1;
+        }
+        //手指x所在的步数
+        float pos = 1.0f * maxValue * x / stepLenght;
+        return ((int) (((Math.round(pos) * stepLenght) * 1.0f / maxValue) * totalLength) + DEF_PADDING + seekBallRadio);
+    }
+
+    /**
+     * 获取当前值
+     *
+     * @param moveX
+     * @return
+     */
+    public float getCurrentValue(int moveX) {
+        int totalLength = viewWidth - 2 * DEF_PADDING - 2 * seekBallRadio;
+        //当前手指x占总长的百分比
+        float x = 1.0f * (moveX - DEF_PADDING - seekBallRadio) / totalLength;
+        if (x < 0) {
+            x = 0;
+        } else if (x > 1) {
+            x = 1;
+        }
+        //手指x所在的步数
+        float pos = 1.0f * maxValue * x / stepLenght;
+        //手指所在的值
+        float index = Math.round(pos) * stepLenght;
+        if (index < 0) {
+            index = 0;
+        } else if (index > maxValue) {
+            index = maxValue;
+        }
+        return index;
     }
 
     /**
@@ -498,6 +546,17 @@ public class RangeSeekBarView extends View {
     }
 
     /**
+     * 设置步数
+     *
+     * @param stepLenght
+     * @return
+     */
+    public RangeSeekBarView setStepLenght(float stepLenght) {
+        this.stepLenght = stepLenght;
+        return this;
+    }
+
+    /**
      * 设置拖动回调
      *
      * @param dragFinishedListener
@@ -543,12 +602,10 @@ public class RangeSeekBarView extends View {
         /**
          * 拖拽回调
          *
-         * @param leftStepPos   range模式/步数移动下   左面的球步数index
-         * @param rightStepPos  range模式/步数移动下   右面的球步数index
-         * @param leftPosRatio  左面球滑动位置占总长度的比例  SEEKBAR_MODE_SINGLE模式下为0
-         * @param rightPosRatio 右面球滑动位置占总长度的比例
+         * @param leftValue  左面球滑动位置
+         * @param rightValue 右面球滑动位置
          */
-        void dragFinished(int leftStepPos, int rightStepPos, float leftPosRatio, float rightPosRatio);
+        void dragFinished(float leftValue, float rightValue);
 
     }
 
