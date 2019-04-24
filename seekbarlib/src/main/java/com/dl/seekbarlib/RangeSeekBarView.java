@@ -236,10 +236,9 @@ public class RangeSeekBarView extends View {
      */
     public void setLeftSeekBallValue(float value) {
         if (seekBarMode != SEEKBAR_MODE_RANGE) return;
-        if (value < minValue) value = minValue;
-        if (value > maxValue) value = maxValue;
-        // value占maxvlaue的百分比
-        float pos = 1.0f * value / stepLenght;
+        if (value <= minValue) value = minValue;
+        if (value >= maxValue) value = maxValue;
+        float pos = 1.0f * (value - minValue) / stepLenght;
         int totalLength = viewWidth - 2 * DEF_PADDING - 2 * seekBallRadio;
         leftSeekBallX = ((int) (((Math.round(pos) * stepLenght) * 1.0f / maxValue()) * totalLength) + DEF_PADDING + seekBallRadio);
         //设置背景线的样式
@@ -257,7 +256,7 @@ public class RangeSeekBarView extends View {
         if (value < minValue) value = minValue;
         if (value > maxValue) value = maxValue;
         // value占maxvlaue的百分比
-        float pos = 1.0f * value / stepLenght;
+        float pos = 1.0f * (value - minValue) / stepLenght;
         int totalLength = viewWidth - 2 * DEF_PADDING - 2 * seekBallRadio;
         rightSeekBallX = ((int) (((Math.round(pos) * stepLenght) * 1.0f / maxValue()) * totalLength) + DEF_PADDING + seekBallRadio);
         //设置背景线的样式
@@ -277,7 +276,7 @@ public class RangeSeekBarView extends View {
         if (value < minValue) value = minValue;
         if (value > maxValue) value = maxValue;
         int totalLenght = viewWidth - 2 * DEF_PADDING - 2 * seekBallRadio;
-        rightSeekBallX = (int) (DEF_PADDING + seekBallRadio + (value * 1.0f / maxValue()) * totalLenght);
+        rightSeekBallX = (int) (DEF_PADDING + seekBallRadio + ((value - minValue) * 1.0f / maxValue()) * totalLenght);
         seekPbRectF = new RectF(leftSeekBallX, viewHeight * SEEK_BG_SCALE, rightSeekBallX, viewHeight * SEEK_BG_SCALE + BG_HEIGHT);
         postInvalidate();
     }

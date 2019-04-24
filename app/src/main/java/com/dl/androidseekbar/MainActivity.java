@@ -42,6 +42,9 @@ public class MainActivity extends AppCompatActivity {
                 }).setOnLayoutLoadCompleteListener(new RangeSeekBarView.OnLayoutLoadCompleteListener() {
             @Override
             public void loadComplete() {
+                mRangeSeekBar.setLeftSeekBallValue(85);
+                mRangeSeekBar.setRightSeekBallValue(95);
+                mRangeSeekBar.setSeekBarPos(95);
             }
         });
 
