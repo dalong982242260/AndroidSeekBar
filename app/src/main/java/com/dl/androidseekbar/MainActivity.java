@@ -16,7 +16,8 @@ public class MainActivity extends AppCompatActivity {
     private RangeSeekBarView mRangeSeekBar;
     private TextView mRangeSeekBarTv;
 
-    private float maxValue = 91f;
+    private float maxValue = 100f;
+    private float minValue = 80f;
 
     private float stepLenght = 5f;
 
@@ -28,20 +29,19 @@ public class MainActivity extends AppCompatActivity {
         mRangeSeekBarTv = findViewById(R.id.range_seek_bar_tv);
         mRangeSeekBar
                 .setRangeData(getSeekBarData())
+                .setMinValue(minValue)
                 .setMaxValue(maxValue)
                 .setStepLenght(stepLenght)
                 .setOnDragFinishedListener(new RangeSeekBarView.OnDragFinishedListener() {
                     @Override
                     public void dragFinished(float leftValue, float rightValue) {
                         mRangeSeekBarTv.setText(leftValue + "~" + rightValue);
-                        Log.e("123123", "leftValue=" + leftValue + "  rightValue=" + rightValue);
+//                        Log.e("123123", "leftValue=" + leftValue + "  rightValue=" + rightValue);
                     }
 
                 }).setOnLayoutLoadCompleteListener(new RangeSeekBarView.OnLayoutLoadCompleteListener() {
             @Override
             public void loadComplete() {
-                mRangeSeekBar.setLeftSeekBallValue(10);
-                mRangeSeekBar.setRightSeekBallValue(50);
             }
         });
 
@@ -51,12 +51,9 @@ public class MainActivity extends AppCompatActivity {
 
     public List<String> getSeekBarData() {
         List<String> data = new ArrayList<>();
-        data.add("0");
-        data.add("50");
-        data.add(""+maxValue);
-//        for (float i = 0; i <= maxValue; i += stepLenght) {
-//            data.add(String.valueOf(i));
-//        }
+        for (float i = 0; i + minValue <= maxValue; i += stepLenght) {
+            data.add(String.valueOf(i + minValue));
+        }
         return data;
     }
 }
