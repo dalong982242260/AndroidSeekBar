@@ -16,8 +16,8 @@ public class MainActivity extends AppCompatActivity {
     private RangeSeekBarView mRangeSeekBar;
     private TextView mRangeSeekBarTv;
 
-    private float maxValue = 100f;
-    private float minValue = 80f;
+    private float maxValue = 51f;
+    private float minValue = 10f;
 
     private float stepLenght = 5f;
 
@@ -42,9 +42,10 @@ public class MainActivity extends AppCompatActivity {
                 }).setOnLayoutLoadCompleteListener(new RangeSeekBarView.OnLayoutLoadCompleteListener() {
             @Override
             public void loadComplete() {
-                mRangeSeekBar.setLeftSeekBallValue(85);
-                mRangeSeekBar.setRightSeekBallValue(95);
-                mRangeSeekBar.setSeekBarPos(95);
+//                mRangeSeekBar.setLeftSeekBallValue(minValue);
+//                mRangeSeekBar.setRightSeekBallValue(maxValue);
+                mRangeSeekBar.setSeekBarPos(maxValue);
+                mRangeSeekBarTv.setText(mRangeSeekBar.getCurrentLeftValue() + "~" + mRangeSeekBar.getCurrentRightValue());
             }
         });
 
