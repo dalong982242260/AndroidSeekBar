@@ -76,6 +76,9 @@ public class RangeSeekBarView extends View {
 
     private float stepLenght = 1;
 
+    //是否启用
+    private boolean isCanEnabled = true;
+
     public RangeSeekBarView(Context context) {
         this(context, null);
     }
@@ -302,6 +305,7 @@ public class RangeSeekBarView extends View {
 
     /**
      * 获取当前左边值  控件加载完成后调用
+     *
      * @return
      */
     public float getCurrentLeftValue() {
@@ -310,6 +314,7 @@ public class RangeSeekBarView extends View {
 
     /**
      * 获取当前右边值  控件加载完成后调用
+     *
      * @return
      */
     public float getCurrentRightValue() {
@@ -319,6 +324,7 @@ public class RangeSeekBarView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (!isCanEnabled) return false;
         if (getParent() != null) {
             getParent().requestDisallowInterceptTouchEvent(true);
         }
@@ -636,6 +642,17 @@ public class RangeSeekBarView extends View {
      */
     public RangeSeekBarView setStepLenght(float stepLenght) {
         this.stepLenght = stepLenght;
+        return this;
+    }
+
+    /**
+     * 设置是否启用  默认启用
+     *
+     * @param isCanEnabled
+     * @return
+     */
+    public RangeSeekBarView setCanEnabled(boolean isCanEnabled) {
+        this.isCanEnabled = isCanEnabled;
         return this;
     }
 

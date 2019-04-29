@@ -31,9 +31,9 @@
             app:seek_ball_solid_color="@android:color/white"
             app:seek_ball_stroke_color="#FFFED854"
             app:seek_bg_color="#FFD9D9D9"
-            app:seek_mode="single"
+            app:seek_mode="range"
             app:seek_pb_color="#FFFED854"
-            app:seek_step_move="true"
+            app:seek_step_move="false"
             app:seek_text_color="#FF6E6E6E"
             app:seek_text_size="14sp"
             app:seek_vertical_line="false" />

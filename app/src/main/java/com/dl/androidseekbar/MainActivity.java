@@ -2,7 +2,6 @@ package com.dl.androidseekbar;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.TextView;
 
 import com.dl.seekbarlib.RangeSeekBarView;
@@ -16,10 +15,10 @@ public class MainActivity extends AppCompatActivity {
     private RangeSeekBarView mRangeSeekBar;
     private TextView mRangeSeekBarTv;
 
-    private float maxValue = 51f;
-    private float minValue = 10f;
+    private float maxValue = 10;
+    private float minValue = 0;
 
-    private float stepLenght = 5f;
+    private float stepLenght = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,21 +41,26 @@ public class MainActivity extends AppCompatActivity {
                 }).setOnLayoutLoadCompleteListener(new RangeSeekBarView.OnLayoutLoadCompleteListener() {
             @Override
             public void loadComplete() {
-//                mRangeSeekBar.setLeftSeekBallValue(minValue);
-//                mRangeSeekBar.setRightSeekBallValue(maxValue);
-                mRangeSeekBar.setSeekBarPos(maxValue);
+                mRangeSeekBar.setLeftSeekBallValue(0);
+                mRangeSeekBar.setRightSeekBallValue(3);
+//                mRangeSeekBar.setSeekBarPos(maxValue);
                 mRangeSeekBarTv.setText(mRangeSeekBar.getCurrentLeftValue() + "~" + mRangeSeekBar.getCurrentRightValue());
             }
         });
 
-
+        mRangeSeekBar.setCanEnabled(true);
     }
 
 
     public List<String> getSeekBarData() {
         List<String> data = new ArrayList<>();
         for (float i = 0; i + minValue <= maxValue; i += stepLenght) {
-            data.add(String.valueOf(i + minValue));
+            if (i == maxValue) {
+                data.add("10以上");
+            } else {
+
+                data.add(String.valueOf((int) (i + minValue)));
+            }
         }
         return data;
     }
