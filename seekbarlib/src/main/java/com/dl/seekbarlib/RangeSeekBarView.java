@@ -330,6 +330,10 @@ public class RangeSeekBarView extends View {
         }
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                //当触摸点在两球的位置时才可以操作滑动，如果不在就直接返回
+                if (!isTouchPointInCircle(event.getX(), event.getY())) {
+                    return false;
+                }
                 downX = (int) event.getX();
                 //重新计算x值
                 if (isStepMove) {
@@ -533,6 +537,63 @@ public class RangeSeekBarView extends View {
         canvas.drawCircle(leftSeekBallX, seekBallY, seekBallRadio, seekBallStrokePaint);
         canvas.drawCircle(leftSeekBallX, seekBallY, seekBallRadio - SEEK_STROKE_SIZE, seekBallPaint);
     }
+
+    /**
+     * 判断触摸点是否在圆的上面
+     *
+     * @param x
+     * @param y
+     * @return
+     */
+    private boolean isTouchPointInCircle(float x, float y) {
+        if (isTouchPointInLeftCircle(x, y) || isTouchPointInRightCircle(x, y)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 是否触摸在左面的圆球上
+     *
+     * @param x
+     * @param y
+     * @return
+     */
+    public boolean isTouchPointInLeftCircle(float x, float y) {
+        //点击位置x坐标与圆心的x坐标的距离
+        float distanceX = Math.abs(leftSeekBallX - x);
+        //点击位置y坐标与圆心的y坐标的距离
+        float distanceY = Math.abs(seekBallY - y);
+        //点击位置与圆心的直线距离
+        int distanceZ = (int) Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2));
+        //如果点击位置与圆心的距离大于圆的半径，证明点击位置没有在圆内
+        if (distanceZ > seekBallRadio) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 是否触摸在右面的圆球上
+     *
+     * @param x
+     * @param y
+     * @return
+     */
+    public boolean isTouchPointInRightCircle(float x, float y) {
+        //点击位置x坐标与圆心的x坐标的距离
+        float distanceX = Math.abs(rightSeekBallX - x);
+        //点击位置y坐标与圆心的y坐标的距离
+        float distanceY = Math.abs(seekBallY - y);
+        //点击位置与圆心的直线距离
+        int distanceZ = (int) Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2));
+        //如果点击位置与圆心的距离大于圆的半径，证明点击位置没有在圆内
+        if (distanceZ > seekBallRadio) {
+            return false;
+        }
+        return true;
+    }
+
 
     /**
      * 绘制背景
