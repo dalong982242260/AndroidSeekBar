@@ -821,7 +821,7 @@ public class RangeSeekBarView extends View {
         super.onLayout(changed, left, top, right, bottom);
         viewHeight = getMeasuredHeight();
         viewWidth = getMeasuredWidth();
-        if (null != mOnLayoutLoadCompleteListener) {
+        if (null != mOnLayoutLoadCompleteListener && isFirst) {
             mOnLayoutLoadCompleteListener.loadComplete();
         }
         isFirst = false;
