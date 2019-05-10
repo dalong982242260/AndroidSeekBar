@@ -40,16 +40,14 @@ public class MainActivity extends AppCompatActivity {
 //                        Log.e("123123", "leftValue=" + leftValue + "  rightValue=" + rightValue);
                     }
 
-                }).setLeftSeekBallValue(1)
-                .setRightSeekBallValue(5);
+                }).setRangeSeekBallValue(1,5);
         mRangeSeekBarTv.setText(mRangeSeekBar.getCurrentLeftValue() + "~" + mRangeSeekBar.getCurrentRightValue());
         mRangeSeekBar.setVisibility(View.GONE);
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 mRangeSeekBar.setVisibility(View.VISIBLE);
-                mRangeSeekBar.setLeftSeekBallValue(6);
-                mRangeSeekBar.setRightSeekBallValue(8);
+                mRangeSeekBar.setRangeSeekBallValue(5,8);
             }
         },3000);
     }
