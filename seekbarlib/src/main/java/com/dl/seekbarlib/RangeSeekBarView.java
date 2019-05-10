@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
@@ -60,7 +61,6 @@ public class RangeSeekBarView extends View {
     private int seekTextY;
     private int currentMovingType;
     private OnDragFinishedListener dragFinishedListener;
-    private OnLayoutLoadCompleteListener onLayoutLoadCompleteListener;
     private int leftPosition, rightPosition;
     private int downX;
     private Context mContext;
@@ -140,32 +140,29 @@ public class RangeSeekBarView extends View {
         seekBallStrokePaint = creatPaint(seekBallStrokeColor, 0, Paint.Style.FILL, 0);
         seekBallStrokePaint.setShadowLayer(5, 2, 2, seekBallStrokeColor);
 
-        //view加载完成回调
-        getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                if (null != onLayoutLoadCompleteListener && isFirst) {
-                    onLayoutLoadCompleteListener.loadComplete();
-                    isFirst = false;
-                }
-            }
-        });
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        viewHeight = h;
-        viewWidth = w;
+        viewHeight = getMeasuredHeight();
+        viewWidth = getMeasuredWidth();
+        updateRangeSeekBarXY();
+        Log.e("987654321", "onSizeChanged   viewWidth=" + viewWidth);
+        Log.e("987654321", "onSizeChanged   getMeasuredWidth=" + getMeasuredWidth());
+    }
+
+    /**
+     * 更新滑动控件的xy位置
+     */
+    public void updateRangeSeekBarXY() {
         seekBallRadio = dp2px(13);
         seekBallY = (int) (viewHeight * SEEK_BG_SCALE + BG_HEIGHT / 2.F);
         seekTextY = (int) (viewHeight * SEEK_TEXT_SCALE);
         leftSeekBallX = seekBallRadio + DEF_PADDING;
         rightSeekBallX = viewWidth - seekBallRadio - DEF_PADDING;
-
         seekBGRectF = new RectF(seekBallRadio + DEF_PADDING, viewHeight * SEEK_BG_SCALE, viewWidth - seekBallRadio - DEF_PADDING, viewHeight * SEEK_BG_SCALE + BG_HEIGHT);
         seekPbRectF = new RectF(leftSeekBallX, viewHeight * SEEK_BG_SCALE, rightSeekBallX, viewHeight * SEEK_BG_SCALE + BG_HEIGHT);
-
     }
 
 
@@ -235,48 +232,67 @@ public class RangeSeekBarView extends View {
     /**
      * 设置左面球的位置 -必须在view加载完成在设置有效   当是单选不是范围模式的时候设置无效
      *
-     * @param value
+     * @param leftValue
      */
-    public void setLeftSeekBallValue(float value) {
-        if (seekBarMode != SEEKBAR_MODE_RANGE) return;
-        if (value <= minValue) value = minValue;
-        if (value >= maxValue) value = maxValue;
-        float pos = 1.0f * (value - minValue) / stepLenght;
-        int totalLength = viewWidth - 2 * DEF_PADDING - 2 * seekBallRadio;
-        leftSeekBallX = ((int) (((Math.round(pos) * stepLenght) * 1.0f / maxValue()) * totalLength) + DEF_PADDING + seekBallRadio);
-        if (value == maxValue) {
-            leftSeekBallX = DEF_PADDING + seekBallRadio + totalLength;
-        }
-        if (value == minValue) {
-            leftSeekBallX = DEF_PADDING + seekBallRadio;
-        }
-        //设置背景线的样式
-        seekPbRectF = new RectF(leftSeekBallX, viewHeight * SEEK_BG_SCALE, rightSeekBallX, viewHeight * SEEK_BG_SCALE + BG_HEIGHT);
-        postInvalidate();
+    public RangeSeekBarView setLeftSeekBallValue(final float leftValue) {
+        setOnLayoutLoadCompleteListener(new OnLayoutLoadCompleteListener() {
+            @Override
+            public void loadComplete() {
+                Log.e("12341234", "setLeftSeekBallValue   viewWidth=" + viewWidth);
+
+                float value = leftValue;
+                if (seekBarMode != SEEKBAR_MODE_RANGE) return;
+                if (value <= minValue) value = minValue;
+                if (value >= maxValue) value = maxValue;
+
+                float pos = 1.0f * (value - minValue) / stepLenght;
+                int totalLength = viewWidth - 2 * DEF_PADDING - 2 * seekBallRadio;
+                leftSeekBallX = ((int) (((Math.round(pos) * stepLenght) * 1.0f / maxValue()) * totalLength) + DEF_PADDING + seekBallRadio);
+                if (value == maxValue) {
+                    leftSeekBallX = DEF_PADDING + seekBallRadio + totalLength;
+                }
+                if (value == minValue) {
+                    leftSeekBallX = DEF_PADDING + seekBallRadio;
+                }
+                //设置背景线的样式
+                seekPbRectF = new RectF(leftSeekBallX, viewHeight * SEEK_BG_SCALE, rightSeekBallX, viewHeight * SEEK_BG_SCALE + BG_HEIGHT);
+                postInvalidate();
+            }
+        });
+        return this;
+
     }
 
     /**
      * 设置右面球的位置-必须在view加载完成再设置有效
      *
-     * @param value
+     * @param rightValue
      */
-    public void setRightSeekBallValue(float value) {
-        if (seekBarMode != SEEKBAR_MODE_RANGE) return;
-        if (value <= minValue) value = minValue;
-        if (value >= maxValue) value = maxValue;
-        // value占maxvlaue的百分比
-        float pos = 1.0f * (value - minValue) / stepLenght;
-        int totalLength = viewWidth - 2 * DEF_PADDING - 2 * seekBallRadio;
-        rightSeekBallX = ((int) (((Math.round(pos) * stepLenght) * 1.0f / maxValue()) * totalLength) + DEF_PADDING + seekBallRadio);
-        if (value == maxValue) {
-            rightSeekBallX = DEF_PADDING + seekBallRadio + totalLength;
-        }
-        if (value == minValue) {
-            rightSeekBallX = DEF_PADDING + seekBallRadio;
-        }
-        //设置背景线的样式
-        seekPbRectF = new RectF(leftSeekBallX, viewHeight * SEEK_BG_SCALE, rightSeekBallX, viewHeight * SEEK_BG_SCALE + BG_HEIGHT);
-        postInvalidate();
+    public RangeSeekBarView setRightSeekBallValue(final float rightValue) {
+        setOnLayoutLoadCompleteListener(new OnLayoutLoadCompleteListener() {
+            @Override
+            public void loadComplete() {
+                float value = rightValue;
+                if (seekBarMode != SEEKBAR_MODE_RANGE) return;
+                if (value <= minValue) value = minValue;
+                if (value >= maxValue) value = maxValue;
+                // value占maxvlaue的百分比
+                float pos = 1.0f * (value - minValue) / stepLenght;
+                int totalLength = viewWidth - 2 * DEF_PADDING - 2 * seekBallRadio;
+                rightSeekBallX = ((int) (((Math.round(pos) * stepLenght) * 1.0f / maxValue()) * totalLength) + DEF_PADDING + seekBallRadio);
+                if (value == maxValue) {
+                    rightSeekBallX = DEF_PADDING + seekBallRadio + totalLength;
+                }
+                if (value == minValue) {
+                    rightSeekBallX = DEF_PADDING + seekBallRadio;
+                }
+                //设置背景线的样式
+                seekPbRectF = new RectF(leftSeekBallX, viewHeight * SEEK_BG_SCALE, rightSeekBallX, viewHeight * SEEK_BG_SCALE + BG_HEIGHT);
+                postInvalidate();
+            }
+        });
+        return this;
+
     }
 
 
@@ -284,22 +300,29 @@ public class RangeSeekBarView extends View {
      * 单选模式设置有效
      * 设置seekbar位置
      *
-     * @param value
+     * @param rightValue
      */
-    public void setSeekBarPos(float value) {
-        if (seekBarMode != SEEKBAR_MODE_SINGLE) return;
-        if (value < minValue) value = minValue;
-        if (value > maxValue) value = maxValue;
-        int totalLenght = viewWidth - 2 * DEF_PADDING - 2 * seekBallRadio;
-        rightSeekBallX = (int) (DEF_PADDING + seekBallRadio + ((value - minValue) * 1.0f / maxValue()) * totalLenght);
-        if (value == maxValue) {
-            rightSeekBallX = DEF_PADDING + seekBallRadio + totalLenght;
-        }
-        if (value == minValue) {
-            rightSeekBallX = DEF_PADDING + seekBallRadio;
-        }
-        seekPbRectF = new RectF(leftSeekBallX, viewHeight * SEEK_BG_SCALE, rightSeekBallX, viewHeight * SEEK_BG_SCALE + BG_HEIGHT);
-        postInvalidate();
+    public RangeSeekBarView setSeekBarPos(final float rightValue) {
+        setOnLayoutLoadCompleteListener(new OnLayoutLoadCompleteListener() {
+            @Override
+            public void loadComplete() {
+                float value = rightValue;
+                if (seekBarMode != SEEKBAR_MODE_SINGLE) return;
+                if (value < minValue) value = minValue;
+                if (value > maxValue) value = maxValue;
+                int totalLenght = viewWidth - 2 * DEF_PADDING - 2 * seekBallRadio;
+                rightSeekBallX = (int) (DEF_PADDING + seekBallRadio + ((value - minValue) * 1.0f / maxValue()) * totalLenght);
+                if (value == maxValue) {
+                    rightSeekBallX = DEF_PADDING + seekBallRadio + totalLenght;
+                }
+                if (value == minValue) {
+                    rightSeekBallX = DEF_PADDING + seekBallRadio;
+                }
+                seekPbRectF = new RectF(leftSeekBallX, viewHeight * SEEK_BG_SCALE, rightSeekBallX, viewHeight * SEEK_BG_SCALE + BG_HEIGHT);
+                postInvalidate();
+            }
+        });
+        return this;
     }
 
 
@@ -552,8 +575,9 @@ public class RangeSeekBarView extends View {
         return false;
     }
 
+
     /**
-     * 是否触摸在左面的圆球上
+     * 是否触摸在左面球上
      *
      * @param x
      * @param y
@@ -574,7 +598,7 @@ public class RangeSeekBarView extends View {
     }
 
     /**
-     * 是否触摸在右面的圆球上
+     * 是否触摸在右面球上
      *
      * @param x
      * @param y
@@ -734,8 +758,27 @@ public class RangeSeekBarView extends View {
      * @param onLayoutLoadCompleteListener
      * @return
      */
-    public RangeSeekBarView setOnLayoutLoadCompleteListener(OnLayoutLoadCompleteListener onLayoutLoadCompleteListener) {
-        this.onLayoutLoadCompleteListener = onLayoutLoadCompleteListener;
+    private RangeSeekBarView setOnLayoutLoadCompleteListener(final OnLayoutLoadCompleteListener onLayoutLoadCompleteListener) {
+        if (null != onLayoutLoadCompleteListener) {
+            //view是否加载完成过
+            if (isFirst) {
+                //view加载完成回调
+                getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                        Log.e("12341234", "onGlobalLayout   isFirst=" + isFirst);
+                        Log.e("12341234", "onGlobalLayout   getMeasuredWidth=" + getMeasuredWidth());
+                        viewWidth = getMeasuredWidth();
+                        viewHeight = getMeasuredHeight();
+                        onLayoutLoadCompleteListener.loadComplete();
+                        isFirst = false;
+                    }
+                });
+            } else {
+                onLayoutLoadCompleteListener.loadComplete();
+            }
+        }
         return this;
     }
 
@@ -780,7 +823,20 @@ public class RangeSeekBarView extends View {
     @Override
     protected void onWindowVisibilityChanged(int visibility) {
         super.onWindowVisibilityChanged(visibility);
+        Log.e("12341234","onWindowVisibilityChanged"+getMeasuredWidth());
         invalidate();
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        Log.e("12341234","onLayout="+getMeasuredWidth());
+    }
+
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        Log.e("12341234","onFinishInflate  "+getMeasuredWidth());
     }
 
 }

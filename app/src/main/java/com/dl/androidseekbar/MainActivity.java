@@ -1,7 +1,9 @@
 package com.dl.androidseekbar;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.TextView;
 
 import com.dl.seekbarlib.RangeSeekBarView;
@@ -18,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private float maxValue = 10;
     private float minValue = 0;
 
-    private float stepLenght = 2;
+    private float stepLenght = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,17 +40,18 @@ public class MainActivity extends AppCompatActivity {
 //                        Log.e("123123", "leftValue=" + leftValue + "  rightValue=" + rightValue);
                     }
 
-                }).setOnLayoutLoadCompleteListener(new RangeSeekBarView.OnLayoutLoadCompleteListener() {
+                }).setLeftSeekBallValue(1)
+                .setRightSeekBallValue(5);
+        mRangeSeekBarTv.setText(mRangeSeekBar.getCurrentLeftValue() + "~" + mRangeSeekBar.getCurrentRightValue());
+        mRangeSeekBar.setVisibility(View.GONE);
+        new Handler().postDelayed(new Runnable() {
             @Override
-            public void loadComplete() {
-                mRangeSeekBar.setLeftSeekBallValue(0);
-                mRangeSeekBar.setRightSeekBallValue(3);
-//                mRangeSeekBar.setSeekBarPos(maxValue);
-                mRangeSeekBarTv.setText(mRangeSeekBar.getCurrentLeftValue() + "~" + mRangeSeekBar.getCurrentRightValue());
+            public void run() {
+                mRangeSeekBar.setVisibility(View.VISIBLE);
+                mRangeSeekBar.setLeftSeekBallValue(6);
+                mRangeSeekBar.setRightSeekBallValue(8);
             }
-        });
-
-        mRangeSeekBar.setCanEnabled(true);
+        },3000);
     }
 
 
