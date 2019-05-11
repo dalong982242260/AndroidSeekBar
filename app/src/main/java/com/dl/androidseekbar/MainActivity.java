@@ -3,6 +3,7 @@ package com.dl.androidseekbar;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -14,13 +15,12 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private RangeSeekBarView mRangeSeekBar;
     private TextView mRangeSeekBarTv;
 
-    private float maxValue = 10;
+    private float maxValue = 15;
     private float minValue = 0;
-
-    private float stepLenght = 1;
+    private float stepLenght = 2f;
+    private RangeSeekBarView mRangeSeekBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,19 +37,22 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void dragFinished(float leftValue, float rightValue) {
                         mRangeSeekBarTv.setText(leftValue + "~" + rightValue);
-//                        Log.e("123123", "leftValue=" + leftValue + "  rightValue=" + rightValue);
+                        Log.e("123123", "leftValue=" + leftValue + "  rightValue=" + rightValue);
                     }
 
-                }).setRangeSeekBallValue(1,5);
+                }).setSingleSeekBallValue(6).setLeftSeekBallValue(4);
         mRangeSeekBarTv.setText(mRangeSeekBar.getCurrentLeftValue() + "~" + mRangeSeekBar.getCurrentRightValue());
+
+
         mRangeSeekBar.setVisibility(View.GONE);
+
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 mRangeSeekBar.setVisibility(View.VISIBLE);
-                mRangeSeekBar.setRangeSeekBallValue(5,8);
+                mRangeSeekBar.setRangeSeekBallValue(5, 8);
             }
-        },3000);
+        }, 3000);
     }
 
 

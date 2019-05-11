@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="RangeSeekBarView">
+    <declare-styleable name="RangeSeekBarView_old">
         <attr name="seek_bg_color" format="color" />
         <attr name="seek_pb_color" format="color" />
         <attr name="seek_ball_solid_color" format="color" />

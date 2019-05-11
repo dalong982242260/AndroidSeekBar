@@ -71,29 +71,29 @@ public class SingleSeekBarView extends View {
     public SingleSeekBarView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         this.mContext = context;
-        TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.RangeSeekBarView, defStyleAttr, R.style.RangeSeekBarViewStyle);
+        TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.RangeSeekBarView_old, defStyleAttr, R.style.RangeSeekBarViewStyle);
         int indexCount = typedArray.getIndexCount();
         for (int i = 0; i < indexCount; i++) {
             int attr = typedArray.getIndex(i);
-            if (attr == R.styleable.RangeSeekBarView_seek_bg_color) {
+            if (attr == R.styleable.RangeSeekBarView_old_seek_bg_color) {
                 seekBgColor = typedArray.getColor(attr, Color.parseColor("#D9D9D9"));
 
-            } else if (attr == R.styleable.RangeSeekBarView_seek_pb_color) {
+            } else if (attr == R.styleable.RangeSeekBarView_old_seek_pb_color) {
                 seekPbColor = typedArray.getColor(attr, Color.parseColor("#FED854"));
 
-            } else if (attr == R.styleable.RangeSeekBarView_seek_ball_solid_color) {
+            } else if (attr == R.styleable.RangeSeekBarView_old_seek_ball_solid_color) {
                 seekBallSolidColor = typedArray.getColor(attr, Color.parseColor("#FFFFFF"));
 
-            } else if (attr == R.styleable.RangeSeekBarView_seek_ball_stroke_color) {
+            } else if (attr == R.styleable.RangeSeekBarView_old_seek_ball_stroke_color) {
                 seekBallStrokeColor = typedArray.getColor(attr, Color.parseColor("#FED854"));
 
-            } else if (attr == R.styleable.RangeSeekBarView_seek_text_color) {
+            } else if (attr == R.styleable.RangeSeekBarView_old_seek_text_color) {
                 seekTextColor = typedArray.getColor(attr, Color.parseColor("#959595"));
 
-            } else if (attr == R.styleable.RangeSeekBarView_seek_text_size) {
+            } else if (attr == R.styleable.RangeSeekBarView_old_seek_text_size) {
                 seekTextSize = typedArray.getDimensionPixelSize(attr, 14);
 
-            } else if (attr == R.styleable.RangeSeekBarView_seek_vertical_line) {
+            } else if (attr == R.styleable.RangeSeekBarView_old_seek_vertical_line) {
                 isShowVerticalLine = typedArray.getBoolean(attr, false);
             }
         }
